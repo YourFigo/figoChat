@@ -1,6 +1,7 @@
 package top.figo.hchat.netty;
 
 import io.netty.channel.Channel;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -31,11 +32,29 @@ public class UserChannelMap {
     }
 
     /**
-     * 移除用户ID与channel的关联
+     * 根据用户id移除用户ID与channel的关联
      * @param userid
      */
-    public static void move(String userid){
+    public static void remove(String userid){
         userChannelMap.remove(userid);
+    }
+
+    /**
+     * 根据通道id移除用户ID与channel的关联
+     * @param channelId
+     */
+    public static void removeByChannelId(String channelId){
+        if (StringUtils.isBlank(channelId)){
+            return;
+        }
+        for (String s : userChannelMap.keySet()) {
+            Channel channel = userChannelMap.get(s);
+            if (channelId.equals(channel.id().asLongText())){
+                userChannelMap.remove(s);
+                System.out.println("客户端连接断开，取消用户：" + s + "与通道：" + channelId + "的关联");
+                break;
+            }
+        }
     }
 
     /**

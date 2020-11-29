@@ -62,4 +62,29 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
         // 将新的通道加入到clients
         clients.add(ctx.channel());
     }
+
+    /**
+     * 连接异常处理
+     * @param ctx
+     * @param cause
+     * @throws Exception
+     */
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        UserChannelMap.removeByChannelId(ctx.channel().id().asLongText());
+        ctx.channel().close();
+    }
+
+    /**
+     * 连接断开处理
+     * @param ctx
+     * @throws Exception
+     */
+    @Override
+    public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
+        System.out.println("关闭通道");
+        UserChannelMap.removeByChannelId(ctx.channel().id().asLongText());
+        UserChannelMap.print();
+    }
+
 }
