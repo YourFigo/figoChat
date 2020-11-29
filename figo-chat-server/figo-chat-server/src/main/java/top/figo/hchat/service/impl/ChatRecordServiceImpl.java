@@ -50,8 +50,35 @@ public class ChatRecordServiceImpl implements ChatRecordService {
         criteria2.andFriendidEqualTo(userid);
         criteria2.andHasDeleteEqualTo(0);
 
+        // 将发给userid的所有聊天记录设置为已读
+        TbChatRecordExample exampleQuerySendToMe = new TbChatRecordExample();
+        TbChatRecordExample.Criteria criteriaQuerySendToMe = exampleQuerySendToMe.createCriteria();
+        criteriaQuerySendToMe.andFriendidEqualTo(userid);
+        criteriaQuerySendToMe.andHasReadEqualTo(0);
+        tbChatRecordMapper.selectByExample(exampleQuerySendToMe).stream().forEach(tbChatRecord -> {
+            tbChatRecord.setHasRead(1);
+            tbChatRecordMapper.updateByPrimaryKey(tbChatRecord);
+        });
+
         tbChatRecordExample.or(criteria1);
         tbChatRecordExample.or(criteria2);
         return tbChatRecordMapper.selectByExample(tbChatRecordExample);
+    }
+
+    @Override
+    public List<TbChatRecord> findUnreadByUserid(String userid) {
+        TbChatRecordExample tbChatRecordExample = new TbChatRecordExample();
+        TbChatRecordExample.Criteria criteria = tbChatRecordExample.createCriteria();
+
+        criteria.andFriendidEqualTo(userid);
+        criteria.andHasReadEqualTo(0);
+        return tbChatRecordMapper.selectByExample(tbChatRecordExample);
+    }
+
+    @Override
+    public void updateStatusHasRead(String id) {
+        TbChatRecord tbChatRecord = tbChatRecordMapper.selectByPrimaryKey(id);
+        tbChatRecord.setHasRead(1);
+        tbChatRecordMapper.updateByPrimaryKey(tbChatRecord);
     }
 }

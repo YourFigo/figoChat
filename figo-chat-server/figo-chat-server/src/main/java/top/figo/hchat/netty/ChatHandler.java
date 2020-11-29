@@ -73,6 +73,12 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
                     System.out.println("用户：" + tbChatRecord.getFriendid() + "不在线");
                 }
                 break;
+            case 2:
+                // 处理客户端的签收信息
+                // 将消息记录设置为已读
+                chatRecordService.updateStatusHasRead(message.getChatRecord().getId());
+                break;
+
         }
     }
 

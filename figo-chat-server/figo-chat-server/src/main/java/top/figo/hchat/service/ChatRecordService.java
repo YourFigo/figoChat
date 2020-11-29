@@ -23,4 +23,17 @@ public interface ChatRecordService {
      * @return
      */
     List<TbChatRecord> findByUserIdAndFriendId(String userid, String friendid);
+
+    /**
+     * 查询未读消息
+     * @param userid
+     * @return
+     */
+    List<TbChatRecord> findUnreadByUserid(String userid);
+
+    /**
+     * 将消息记录设置为已读
+     * @param id
+     */
+    void updateStatusHasRead(String id);
 }
