@@ -11,7 +11,7 @@ public class Message {
     /**
      * 消息类型
      */
-    private String type;
+        private Integer type;
     /**
      * 聊天消息
      */
@@ -21,11 +21,11 @@ public class Message {
      */
     private Object ext;
 
-    public String getType() {
+    public Integer getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(Integer type) {
         this.type = type;
     }
 

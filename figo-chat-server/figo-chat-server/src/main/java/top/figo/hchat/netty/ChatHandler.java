@@ -40,9 +40,15 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
         String text = msg.text();
         System.out.println("接收到消息数据为：" + text);
 
-        for (Channel client : clients) {
-            // 将消息发送到所有的客户端
-            client.writeAndFlush(new TextWebSocketFrame(sdf.format(new Date()) + ":" + text));
+        Message message = JSON.parseObject(text, Message.class);
+        switch (message.getType()){
+            case 0:
+                // 建立用户与通道的关联
+                String userid = message.getChatRecord().getUserid();
+                UserChannelMap.put(userid, ctx.channel());
+                System.out.println("建立用户：" + userid + "与通道" + ctx.channel().id() + "的关联");
+                UserChannelMap.print();
+                break;
         }
     }
 

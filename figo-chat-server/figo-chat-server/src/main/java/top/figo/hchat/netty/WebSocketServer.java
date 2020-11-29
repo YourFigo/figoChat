@@ -10,10 +10,22 @@ import org.springframework.stereotype.Component;
 @Component
 public class WebSocketServer {
 
-    private EventLoopGroup bossGroup;       // 主线程池
-    private EventLoopGroup workerGroup;     // 工作线程池
-    private ServerBootstrap server;         // 服务器
-    private ChannelFuture future;           // 回调
+    /**
+     * 主线程池
+     */
+    private EventLoopGroup bossGroup;
+    /**
+     * 工作线程池
+     */
+    private EventLoopGroup workerGroup;
+    /**
+     * 服务器
+     */
+    private ServerBootstrap server;
+    /**
+     * 回调
+     */
+    private ChannelFuture future;
 
     public void start() {
         future = server.bind(9001);
