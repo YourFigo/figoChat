@@ -112,27 +112,53 @@ public class FriendServiceImpl implements FriendService {
 
     @Override
     public void acceptFriendReq(String reqid) {
-        System.out.println(reqid);
         // 先设置req表中的status为1
-        TbFriendReq friendReq = friendReqMapper.selectByPrimaryKey(reqid);
-        friendReq.setStatus(1);
-        friendReqMapper.updateByPrimaryKey(friendReq);
+        TbFriendReq tbFriendReq = friendReqMapper.selectByPrimaryKey(reqid);
+        tbFriendReq.setStatus(1);
+        friendReqMapper.updateByPrimaryKey(tbFriendReq);
 
         // 在user表中操作，互相添加好友
         TbFriend friendFrom = new TbFriend();
         friendFrom.setId(idWorker.nextId());
-        friendFrom.setUserid(friendReq.getFromUserid());
-        friendFrom.setFriendsId(friendReq.getToUserid());
+        friendFrom.setUserid(tbFriendReq.getFromUserid());
+        friendFrom.setFriendsId(tbFriendReq.getToUserid());
         friendFrom.setCreatetime(new Date());
 
         TbFriend friendTo = new TbFriend();
         friendTo.setId(idWorker.nextId());
-        friendTo.setUserid(friendReq.getToUserid());
-        friendTo.setFriendsId(friendReq.getFromUserid());
+        friendTo.setUserid(tbFriendReq.getToUserid());
+        friendTo.setFriendsId(tbFriendReq.getFromUserid());
         friendTo.setCreatetime(new Date());
 
         friendMapper.insert(friendFrom);
         friendMapper.insert(friendTo);
+    }
 
+    @Override
+    public void ignoreFriendReq(String reqid) {
+        TbFriendReq tbFriendReq = friendReqMapper.selectByPrimaryKey(reqid);
+        tbFriendReq.setStatus(1);
+        friendReqMapper.updateByPrimaryKey(tbFriendReq);
+    }
+
+    @Override
+    public List<User> findFriendByUserid(String userid) {
+        // 查询 tb_friend 中的好友记录
+        TbFriendExample friendExample = new TbFriendExample();
+        TbFriendExample.Criteria friendCriteria = friendExample.createCriteria();
+        friendCriteria.andUseridEqualTo(userid);
+        List<TbFriend> tbFriendList = friendMapper.selectByExample(friendExample);
+
+        // 通过 tb_friend 表中的 friends_id 查询朋友的用户信息
+        List<User> userList = tbFriendList.stream()
+                .map(tbFriend -> userMapper.selectByPrimaryKey(tbFriend.getFriendsId()))
+                .map(tbUser -> {
+                    User user = new User();
+                    BeanUtils.copyProperties(tbUser,user);
+                    return user;
+                })
+                .collect(Collectors.toList());
+
+        return userList;
     }
 }

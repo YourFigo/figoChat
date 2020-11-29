@@ -1,6 +1,5 @@
 package top.figo.hchat.controller;
 
-import org.omg.PortableServer.LIFESPAN_POLICY_ID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -68,5 +67,30 @@ public class FriendController {
         }
     }
 
+    /**
+     * 忽略好友请求
+     * @param reqid
+     * @return
+     */
+    @RequestMapping("/ignoreFriendReq")
+    public Result ignoreFriendReq(String reqid){
+        try {
+            friendService.ignoreFriendReq(reqid);
+            return new Result(true,"忽略添加好友成功");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new Result(false,"忽略添加好友失败");
+        }
+    }
+
+    /**
+     * 获取通讯录信息
+     * @param userid
+     * @return
+     */
+    @RequestMapping("/findFriendByUserid")
+    public List<User> findFriendByUserid(String userid){
+        return friendService.findFriendByUserid(userid);
+    }
 
 }
