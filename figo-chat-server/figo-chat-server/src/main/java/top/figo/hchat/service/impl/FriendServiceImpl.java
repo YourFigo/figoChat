@@ -8,13 +8,11 @@ import top.figo.hchat.mapper.TbFriendMapper;
 import top.figo.hchat.mapper.TbFriendReqMapper;
 import top.figo.hchat.mapper.TbUserMapper;
 import top.figo.hchat.pojo.*;
+import top.figo.hchat.pojo.vo.FriendReq;
 import top.figo.hchat.pojo.vo.User;
 import top.figo.hchat.service.FriendService;
 import top.figo.hchat.utils.IdWorker;
 
-import javax.jws.soap.SOAPBinding;
-import java.nio.channels.UnresolvedAddressException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -90,23 +88,51 @@ public class FriendServiceImpl implements FriendService {
     }
 
     @Override
-    public List<User> findFriendReqByUserid(String userId) {
+    public List<FriendReq> findFriendReqByUserid(String userId) {
         // 根据用户id查询对应的好友请求
         TbFriendReqExample friendReqExample = new TbFriendReqExample();
         TbFriendReqExample.Criteria friendReqCriteria = friendReqExample.createCriteria();
         friendReqCriteria.andToUseridEqualTo(userId);
         friendReqCriteria.andStatusEqualTo(0);
-        List<TbFriendReq> friendReqList = friendReqMapper.selectByExample(friendReqExample);
+        List<TbFriendReq> tbFriendReqList = friendReqMapper.selectByExample(friendReqExample);
 
         // 根据好友请求，将发起好友请求的用户信息返回
-        List<User> friendUserList = friendReqList.stream()
-                .map(friendReq -> {
-                    TbUser tbUser = userMapper.selectByPrimaryKey(friendReq.getFromUserid());
-                    User user = new User();
-                    BeanUtils.copyProperties(tbUser, user);
-                    return user;
+        List<FriendReq> friendReqList = tbFriendReqList.stream()
+                .map(tbFriendReq -> {
+                    TbUser tbUser = userMapper.selectByPrimaryKey(tbFriendReq.getFromUserid());
+                    FriendReq friendReq = new FriendReq();
+                    BeanUtils.copyProperties(tbUser, friendReq);
+                    // 设置请求表的id
+                    friendReq.setId(tbFriendReq.getId());
+                    return friendReq;
                 }).collect(Collectors.toList());
 
-        return friendUserList;
+        return friendReqList;
+    }
+
+    @Override
+    public void acceptFriendReq(String reqid) {
+        System.out.println(reqid);
+        // 先设置req表中的status为1
+        TbFriendReq friendReq = friendReqMapper.selectByPrimaryKey(reqid);
+        friendReq.setStatus(1);
+        friendReqMapper.updateByPrimaryKey(friendReq);
+
+        // 在user表中操作，互相添加好友
+        TbFriend friendFrom = new TbFriend();
+        friendFrom.setId(idWorker.nextId());
+        friendFrom.setUserid(friendReq.getFromUserid());
+        friendFrom.setFriendsId(friendReq.getToUserid());
+        friendFrom.setCreatetime(new Date());
+
+        TbFriend friendTo = new TbFriend();
+        friendTo.setId(idWorker.nextId());
+        friendTo.setUserid(friendReq.getToUserid());
+        friendTo.setFriendsId(friendReq.getFromUserid());
+        friendTo.setCreatetime(new Date());
+
+        friendMapper.insert(friendFrom);
+        friendMapper.insert(friendTo);
+
     }
 }

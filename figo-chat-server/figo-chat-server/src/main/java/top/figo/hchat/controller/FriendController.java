@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import top.figo.hchat.pojo.TbFriendReq;
+import top.figo.hchat.pojo.vo.FriendReq;
 import top.figo.hchat.pojo.vo.Result;
 import top.figo.hchat.pojo.vo.User;
 import top.figo.hchat.service.FriendService;
@@ -23,6 +24,11 @@ public class FriendController {
     @Autowired
     private FriendService friendService;
 
+    /**
+     * 发送添加好友的请求
+     * @param friendReq
+     * @return
+     */
     @RequestMapping("/sendRequest")
     public Result sendRequest(@RequestBody TbFriendReq friendReq){
         try {
@@ -36,8 +42,31 @@ public class FriendController {
         }
     }
 
+    /**
+     * 展示添加好友的信息
+     * @param userId
+     * @return
+     */
     @RequestMapping("/findFriendReqByUserid")
-    public List<User> findFriendReqByUserid(String userId){
+    public List<FriendReq> findFriendReqByUserid(String userId){
         return friendService.findFriendReqByUserid(userId);
     }
+
+    /**
+     * 接受好友请求
+     * @param reqid
+     * @return
+     */
+    @RequestMapping("/acceptFriendReq")
+    public Result acceptFriendReq(String reqid){
+        try {
+            friendService.acceptFriendReq(reqid);
+            return new Result(true,"添加成功");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new Result(false,"添加失败");
+        }
+    }
+
+
 }
