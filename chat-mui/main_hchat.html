@@ -136,7 +136,7 @@
 			function reloadFriendReq() {
 				var user = util.getUser();
 				// 加载好友请求
-				mui.ajax(config.SERVER_URL + "/friend/findFriendReqByUserid?userid=" + user.id, {
+				mui.ajax(config.SERVER_URL + "/friend/findFriendReqByUserid?userId=" + user.id, {
 					data: {},
 					dataType: 'json', //服务器返回json格式数据
 					type: 'post', //HTTP请求类型
