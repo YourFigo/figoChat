@@ -20,11 +20,18 @@ import java.util.Date;
  */
 public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame> {
 
-    // 用来保存所有的客户端连接
+    /**
+     * 用来保存所有的客户端连接
+     */
     private static ChannelGroup clients = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-mm-dd hh:MM");
 
-    // 当Channel中有新的事件消息会自动调用
+    /**
+     * 当Channel中有新的事件消息会自动调用
+     * @param ctx
+     * @param msg
+     * @throws Exception
+     */
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, TextWebSocketFrame msg) throws Exception {
         // 当接收到数据后会自动调用
@@ -39,7 +46,11 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
         }
     }
 
-    // 当有新的客户端连接服务器之后，会自动调用这个方法
+    /**
+     * 当有新的客户端连接服务器之后，会自动调用这个方法
+     * @param ctx
+     * @throws Exception
+     */
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
         // 将新的通道加入到clients
