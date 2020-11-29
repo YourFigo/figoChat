@@ -9,6 +9,10 @@ import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import org.apache.commons.lang3.StringUtils;
+import top.figo.hchat.pojo.TbChatRecord;
+import top.figo.hchat.service.ChatRecordService;
+import top.figo.hchat.utils.IdWorker;
+import top.figo.hchat.utils.SpringUtil;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
@@ -41,6 +45,11 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
         System.out.println("接收到消息数据为：" + text);
 
         Message message = JSON.parseObject(text, Message.class);
+
+        // 通过SpringUtil工具类获取Spring上下文容器
+        ChatRecordService chatRecordService = SpringUtil.getBean(ChatRecordService.class);
+        IdWorker idWorker = SpringUtil.getBean(IdWorker.class);
+
         switch (message.getType()){
             case 0:
                 // 建立用户与通道的关联
@@ -48,6 +57,21 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
                 UserChannelMap.put(userid, ctx.channel());
                 System.out.println("建立用户：" + userid + "与通道" + ctx.channel().id() + "的关联");
                 UserChannelMap.print();
+                break;
+            case 1:
+                System.out.println("接收到用户消息");
+                // 将聊天消息保存到数据库
+                TbChatRecord tbChatRecord = message.getChatRecord();
+                chatRecordService.insert(tbChatRecord);
+
+                Channel channel = UserChannelMap.get(tbChatRecord.getFriendid());
+                // 如果好友在线，可以直接将消息发送给好友
+                if (channel != null){
+                    channel.writeAndFlush(new TextWebSocketFrame(JSON.toJSONString(message)));
+                } else {
+                    // 如果好友不在线，暂时不发送
+                    System.out.println("用户：" + tbChatRecord.getFriendid() + "不在线");
+                }
                 break;
         }
     }

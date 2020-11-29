@@ -67,4 +67,13 @@ public class UserChannelMap {
                                 System.out.println("用户id：" + userid + "通道：" + userChannelMap.get(userid).id())
                 );
     }
+
+    /**
+     * 根据好友id获取相应的通道
+     * @param friendid
+     * @return
+     */
+    public static Channel get(String friendid) {
+        return userChannelMap.get(friendid);
+    }
 }
